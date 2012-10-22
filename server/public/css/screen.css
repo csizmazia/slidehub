@@ -1,0 +1,40 @@
+body {
+
+}
+
+#page {
+  
+}
+
+#header {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+}
+#header #logo {
+  float: left;
+}
+#header #topnav {
+  float: right;
+}
+
+#pdf-canvas {
+  display: block;
+  width: 45%;
+  float: left;
+}
+
+#content {
+  display: block;
+  width: 45%;
+  background: lightgrey;
+  float: left;
+}
+
+.note {
+  width: 300px;
+  padding: 10px;
+  background: lightgreen;
+  margin-bottom: 10px;
+}

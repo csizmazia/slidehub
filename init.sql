@@ -69,9 +69,11 @@ CREATE TABLE `note` (
   KEY `fk_comment_user1` (`iduser`),
   CONSTRAINT `fk_comment_slide1` FOREIGN KEY (`idslide`) REFERENCES `slide` (`idslide`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_comment_user1` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `note` */
+
+insert  into `note`(`idnote`,`idslide`,`iduser`,`content`,`slide_x`,`slide_y`,`type`,`timestamp`) values (1,1,1,'testcomment',NULL,NULL,'std','2012-11-01 13:56:12');
 
 /*Table structure for table `note_has_external_link` */
 
@@ -111,9 +113,11 @@ CREATE TABLE `slide` (
   PRIMARY KEY (`idslide`),
   KEY `fk_slide_presentation` (`idpresentation`),
   CONSTRAINT `fk_slide_presentation` FOREIGN KEY (`idpresentation`) REFERENCES `presentation` (`idpresentation`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*Data for the table `slide` */
+
+insert  into `slide`(`idslide`,`idpresentation`,`title`,`page_number`) values (1,1,'was auch immer',1);
 
 /*Table structure for table `user` */
 
@@ -123,9 +127,11 @@ CREATE TABLE `user` (
   `email` varchar(255) NOT NULL,
   PRIMARY KEY (`iduser`),
   UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
 /*Data for the table `user` */
+
+insert  into `user`(`iduser`,`username`,`email`) values (1,'testuser','test@mailinator.com');
 
 /*Table structure for table `vote` */
 

@@ -3,7 +3,7 @@
 
 <div id="page">
   {{#is_available}}
-    <script src="/pdf.js" type="text/javascript"></script>
+    <script src="/js/pdf.js" type="text/javascript"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script tyle="text/javascript">
       $(document).ready(function() {
@@ -29,7 +29,9 @@
         });
       
         // https://github.com/mozilla/pdf.js/blob/master/examples/helloworld/hello.js
-        PDFJS.getDocument('{{presentation.filename}}.pdf').then(function(pdf) {
+        //PDFJS.workerSrc = '/js/pdf.js'
+        PDFJS.disableWorker = true
+        PDFJS.getDocument('/pdf/{{presentation.filename}}.pdf').then(function(pdf) {
           // Using promise to fetch the page
           pdf.getPage(1).then(function(page) {
             var scale = 1.5;

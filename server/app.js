@@ -1,4 +1,5 @@
 var express = require("express");
+var path = require('path');
 var util = require("util");
 var mysql = require("mysql");
 var mu = require('mu2');
@@ -32,9 +33,7 @@ var db = mysql.createConnection({
 app.configure(function() {
   //app.all("*", requireAuthentication);
   //app.all("*", loadUser);
-  app.use(express.static(__dirname + "/public/img"));
-  app.use(express.static(__dirname + "/public/css"));
-  app.use(express.static(__dirname + "/public/js"));
+  app.use(express.static(path.join(__dirname, 'public')));
   app.use(express.static(__dirname + "/public/presentations"));
   app.use(express.favicon(__dirname + "/public/img/favicon.ico"));
   app.use(express.logger());

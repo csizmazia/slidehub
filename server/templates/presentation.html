@@ -22,8 +22,7 @@
           if(e.keyCode == 13){
             if($("#new-note").val().length > 0) {
               $("#notes-container").append('<div class="note"><b>'+$("#username").val()+'</b>: <p>'+$("#new-note").val()+'</p></div>');
-              // TODO: this does not implement interface implementation correctly
-              // socket.emit("note", { user: $("#username").val(), "text": $("#new-note").val() });
+              socket.emit("note", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-note").val(), "slide":{"page":1}});
             }
           }
         });

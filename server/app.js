@@ -205,13 +205,14 @@ io.sockets.on('connection', function (socket) {
   
   socket.on('note', function (data_in) {
     socket.get("idpresentation", function (error, idpresentation) {
-      db.query("INSERT INTO note(idslide,iduser,content,slide_x,slide_y,type) VALUES(?,?,?,?,?,'std')",[data_in.slide.idslide,data_in.user.iduser,data_in.text,data_in.slide.x,data_in.slide.y], function(error, results) {
+      db.query("INSERT INTO note(idpresentation,iduser,content,slide_no,slide_x,slide_y,type) VALUES(?,?,?,?,?,?,'std')",[idpresentation,data_in.user.iduser,data_in.text,data_in.slide.page,data_in.slide.x,data_in.slide.y], function(error, results) {
         if (error) {
           console.log(error);
           socket.emit("error",{"msg":"Could not store note","code":error.code,"original":data_in});
         }
       });
-      var data_out = {"user":data_in.user,"slide":data_in.slide,"note":{"text":data_in.text,"timestamp":Date.getTime()}};
+      var now = new Date();
+      var data_out = {"user":data_in.user,"slide":data_in.slide,"note":{"text":data_in.text,"timestamp":now.getTime()}};
       socket.broadcast.to("presentation-"+idpresentation).emit("note", data_out);
     });
   });

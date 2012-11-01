@@ -8,16 +8,22 @@
     <script tyle="text/javascript">
       $(document).ready(function() {
         var socket = io.connect('http://localhost');
+        socket.emit("hello",{ idpresentation:{{presentation.idpresentation}} });
+        socket.on('hi', function (data) {
+          console.log("jetzt kann es losgehen");
+          // TODO: erst jetzt kann es losgehn
+        });
         socket.on('note', function (data) {
           console.log(data);
-          $("#notes-container").append('<div class="note"><b>'+data.user+'</b>: <p>'+data.text+'</p></div>');
+          $("#notes-container").append('<div class="note"><b>'+data.user.name+'</b>: <p>'+data.note.text+'</p></div>');
         });
       
         $('#new-note').bind("keypress", function(e) {
           if(e.keyCode == 13){
             if($("#new-note").val().length > 0) {
               $("#notes-container").append('<div class="note"><b>'+$("#username").val()+'</b>: <p>'+$("#new-note").val()+'</p></div>');
-              socket.emit("note", { user: $("#username").val(), "text": $("#new-note").val() });
+              // TODO: this does not implement interface implementation correctly
+              // socket.emit("note", { user: $("#username").val(), "text": $("#new-note").val() });
             }
           }
         });

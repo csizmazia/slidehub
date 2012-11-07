@@ -107,8 +107,7 @@ function searchPresentations(res, term) {
 // logic
 app.get("/", function(req, res) { 
   db.query("SELECT presentation.*,COUNT(note.idnote) AS note_count FROM presentation " +
-           "JOIN slide ON presentation.idpresentation = slide.idpresentation " +
-           "LEFT OUTER JOIN note ON slide.idslide = note.idslide " +
+           "JOIN note ON presentation.idpresentation = note.idpresentation " +
            "GROUP BY presentation.idpresentation " +
            "ORDER BY timestamp DESC",[], function(error, results) {
     if (error) {

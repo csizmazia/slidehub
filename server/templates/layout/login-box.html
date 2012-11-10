@@ -1,0 +1,82 @@
+
+<!-- Login Box -->
+<div id="loginBox" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Authenticate</h3>
+    </div>
+
+    <div class="modal-body">
+        <div class="tabbable"> <!-- Only required for left/right tabs -->
+            <ul class="nav nav-pills">
+                <li class="active"><a href="#login" data-toggle="tab">Sign In</a></li>
+                <li><a href="#register" data-toggle="tab">Register</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="login">
+                    <form class="form-horizontal">
+
+                        <div class="control-group">
+                            <label class="control-label" for="inputEmail">E-Mail</label>
+                            <div class="controls">
+                                <input type="text" name="email" id="inputEmail" placeholder="E-Mail">
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label" for="inputPassword">Password</label>
+                            <div class="controls">
+                                <input type="password" name="password" id="inputPassword" placeholder="Password">
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn">Sign in</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tab-pane" id="register">
+                     <form class="form-horizontal">
+
+                        <div class="control-group">
+                            <label class="control-label" for="inputEmail">E-Mail</label>
+                            <div class="controls">
+                                <input type="text" name="email" id="inputEmail" placeholder="E-Mail">
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label" for="inputUsername">Username</label>
+                            <div class="controls">
+                                <input type="text" name="username" id="inputUsername" placeholder="Username">
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label" for="inputPassword">Password</label>
+                            <div class="controls">
+                                <input type="password" name="password" id="inputPassword" placeholder="Password">
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label class="control-label" for="inputPassword2">Confirm Password</label>
+                            <div class="controls">
+                                <input type="password" name="password2" id="inputPassword2" placeholder="Password Confirm">
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn">Register</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

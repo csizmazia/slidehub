@@ -117,15 +117,31 @@ app.get("/", function(req, res) {
     
     var view = {
       title: app.get("title"),
+      activeHome: 'active',
       presentations: results
     };
     
     if (app.get("env") == "dev") {
       mu.clearCache();
     }
-    var stream = mu.compileAndRender('presentations.html', view);
+    var stream = mu.compileAndRender('home.html', view);
     util.pump(stream, res);
   });
+});
+
+// logic
+app.get("/about", function(req, res) { 
+    var view = {
+      title: app.get("title"),
+      activeAbout: 'active'
+    };
+    
+    if (app.get("env") == "dev") {
+      mu.clearCache();
+    }
+
+    var stream = mu.compileAndRender('about.html', view);
+    util.pump(stream, res);
 });
 
 app.get("/top", function(req, res) {

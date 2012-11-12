@@ -8,6 +8,7 @@ var Cookies = require('cookies');
 var app = express();
 var server = require("http").createServer(app);
 var io = io.listen(server);
+var Step = require("step");
 
 // config
 app.set("title","SlideHub");
@@ -104,6 +105,56 @@ function searchPresentations(res, term) {
   }
 }
 
+function getNotesAndComments(res, idpresentation, slideno) {
+  if(idpresentation && !isNaN(idpresentation) && (idpresentation - 0) > 0) {
+    if(slideno && !isNaN(slideno) && (slideno - 0) > 0) {
+      var notes = {};
+      Step(
+        function() {
+          db.query("SELECT note.idnote,note.content,note.slide_x,note.slide_y,note.type,note.timestamp,user.iduser,user.username FROM note JOIN user ON note.iduser = user.iduser WHERE idpresentation = ? AND slide_no = ?",[idpresentation, slideno], this);
+        },
+        function(error, results) {
+          if(error) throw error;
+          
+          var parallel = this.parallel;
+          
+          results.forEach(function(note) {
+            note.comments = [];
+            notes[note.idnote] = note;
+            db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], parallel());
+          });
+        },
+        function (error) {
+          var ret = {};
+          if(error) {
+            ret.success = false;
+            ret.msg = error.code;
+          }
+          else {
+            ret.success = true;
+            var notes_and_comments = notes;
+            
+            // arguments[0] is the error field
+            Array.prototype.slice.call(arguments, 1).forEach(function (comments) {
+              if(comments.length > 0) {
+                notes_and_comments[comments[0].idnote].comments = comments;
+              }
+            });
+            ret.data = notes_and_comments;
+          }
+          sendResponseJSON(res, ret);
+        }
+      );
+    }
+    else {
+      sendResponseJSON(res, {"success":false, "msg":"No valid page number given", "data":[]});
+    }
+  }
+  else {
+    sendResponseJSON(res, {"success":false, "msg":"No valid presentation ID given", "data":[]});
+  }
+}
+
 // logic
 app.get("/", function(req, res) { 
   db.query("SELECT presentation.*,COUNT(note.idnote) AS note_count FROM presentation " +
@@ -129,7 +180,6 @@ app.get("/", function(req, res) {
   });
 });
 
-// logic
 app.get("/about", function(req, res) { 
     var view = {
       title: app.get("title"),
@@ -178,6 +228,9 @@ app.get("/ajax", function(req, res) {
         break;
       case "search":
         searchPresentations(res, req.query.term);
+        break;
+      case "get_notes":
+        getNotesAndComments(res, req.query.idpresentation, req.query.slideno);
         break;
       default:
         sendResponseJSON(res, {"success":false,"msg":"what do you want?"});

@@ -283,14 +283,12 @@ io.sockets.on('connection', function (socket) {
         socket.get("idpresentation", this.parallel());
         socket.get("user", this.parallel());
       },
-      function (error) {
-        if(error || arguments.length != 3) {
+      function (error, idpresentation, user) {
+        if(error) {
           console.log(error);
           socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
         }
         else {
-          var idpresentation = arguments[1];
-          var user = arguments[2];
           db.query("INSERT INTO note(idpresentation,iduser,content,slide_no,slide_x,slide_y,type) VALUES(?,?,?,?,?,?,'std')",[idpresentation,user.iduser,data_in.text,data_in.slide.page,data_in.slide.x,data_in.slide.y], function(error, results) {
             if (error) {
               console.log(error);
@@ -311,14 +309,12 @@ io.sockets.on('connection', function (socket) {
         socket.get("idpresentation", this.parallel());
         socket.get("user", this.parallel());
       },
-      function (error) {
-        if(error || arguments.length != 3) {
+      function (error, idpresentation, user) {
+        if(error) {
           console.log(error);
           socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
         }
         else {
-          var idpresentation = arguments[1];
-          var user = arguments[2];
           db.query("INSERT INTO comment(idnote,iduser,content) VALUES(?,?,?)",[data_in.idnote,user.iduser,data_in.text], function(error, results) {
             if (error) {
               console.log(error);

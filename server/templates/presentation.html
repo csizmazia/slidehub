@@ -35,7 +35,7 @@
                 $("#notes-container").append('<div class="note"><b>'+$("#username").val()+'</b>: <p>'+$("#new-note").val()+'</p></div>');
                 // TODO: iduser darf hier natürlich nicht hardcoded sein
                 // iduser wird beim login vom server retourniert
-                //socket.emit("note", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-note").val(), "slide":{"page":1}});
+                socket.emit("note", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-note").val(), "slide":{"page":1}});
               }
             }
           });

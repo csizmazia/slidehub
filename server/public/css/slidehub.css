@@ -34,6 +34,13 @@
   border: 1px solid #AAA;
 }
 
+.note {
+  border: 1px solid red;
+}
+.comment {
+  border: 1px solid blue;
+}
+
 
 
 

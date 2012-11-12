@@ -116,12 +116,10 @@ function getNotesAndComments(res, idpresentation, slideno) {
         function(error, results) {
           if(error) throw error;
           
-          var parallel = this.parallel;
-          
           results.forEach(function(note) {
             note.comments = [];
             notes[note.idnote] = note;
-            db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], parallel());
+            db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], this.parallel());
           });
         },
         function (error) {
@@ -268,21 +266,71 @@ app.get("/presentation/*", function(req, res) {
 io.sockets.on('connection', function (socket) {
   socket.on('hello', function (data_in) {
     socket.join("presentation-"+data_in.idpresentation);
-    socket.set("idpresentation", data_in.idpresentation, function () { socket.emit("hi"); })
+    Step(
+      function() {
+        socket.set("idpresentation", data_in.idpresentation, this.parallel());
+        socket.set("user", data_in.user, this.parallel());
+      },
+      function() {
+        socket.emit("hi");
+      }
+    );
   });
   
   socket.on('note', function (data_in) {
-    socket.get("idpresentation", function (error, idpresentation) {
-      db.query("INSERT INTO note(idpresentation,iduser,content,slide_no,slide_x,slide_y,type) VALUES(?,?,?,?,?,?,'std')",[idpresentation,data_in.user.iduser,data_in.text,data_in.slide.page,data_in.slide.x,data_in.slide.y], function(error, results) {
-        if (error) {
+    Step(
+      function() {
+        socket.get("idpresentation", this.parallel());
+        socket.get("user", this.parallel());
+      },
+      function (error) {
+        if(error || arguments.length != 3) {
           console.log(error);
-          socket.emit("error",{"msg":"Could not store note","code":error.code,"original":data_in});
+          socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
         }
-      });
-      var now = new Date();
-      var data_out = {"user":data_in.user,"slide":data_in.slide,"note":{"text":data_in.text,"timestamp":now.getTime()}};
-      socket.broadcast.to("presentation-"+idpresentation).emit("note", data_out);
-    });
+        else {
+          var idpresentation = arguments[1];
+          var user = arguments[2];
+          db.query("INSERT INTO note(idpresentation,iduser,content,slide_no,slide_x,slide_y,type) VALUES(?,?,?,?,?,?,'std')",[idpresentation,user.iduser,data_in.text,data_in.slide.page,data_in.slide.x,data_in.slide.y], function(error, results) {
+            if (error) {
+              console.log(error);
+              socket.emit("error",{"msg":"Could not store note","code":error.code,"original":data_in});
+            }
+          });
+          var now = new Date();
+          var data_out = {"user":user,"slide":data_in.slide,"note":{"text":data_in.text,"timestamp":now.getTime()}};
+          socket.broadcast.to("presentation-"+idpresentation).emit("note", data_out);
+        }
+      }
+    );
+  });
+  
+  socket.on('comment', function (data_in) {
+    Step(
+      function() {
+        socket.get("idpresentation", this.parallel());
+        socket.get("user", this.parallel());
+      },
+      function (error) {
+        if(error || arguments.length != 3) {
+          console.log(error);
+          socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
+        }
+        else {
+          var idpresentation = arguments[1];
+          var user = arguments[2];
+          db.query("INSERT INTO comment(idnote,iduser,content) VALUES(?,?,?)",[data_in.idnote,user.iduser,data_in.text], function(error, results) {
+            if (error) {
+              console.log(error);
+              socket.emit("error",{"msg":"Could not store comment","code":error.code,"original":data_in});
+            }
+          });
+          var now = new Date();
+          var data_out = {"user":user,"slide":data_in.slide,"comment":{"text":data_in.text,"timestamp":now.getTime()},"idnote":data_in.idnote};
+          socket.broadcast.to("presentation-"+idpresentation).emit("comment", data_out);
+        }
+      }
+    );
   });
 });
 

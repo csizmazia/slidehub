@@ -12,7 +12,9 @@
       <script tyle="text/javascript">
         $(document).ready(function() {
           var socket = io.connect('http://localhost');
-          socket.emit("hello",{ idpresentation:{{presentation.idpresentation}} });
+          // TODO: iduser darf hier natürlich nicht hardcoded sein
+          // iduser wird beim login vom server retourniert
+          socket.emit("hello",{ idpresentation:{{presentation.idpresentation}}, "user":{"iduser":1, "name":$("#username").val()} });
           socket.on('hi', function (data) {
             console.log("jetzt kann es losgehen");
             // TODO: erst jetzt kann es losgehn
@@ -21,12 +23,19 @@
             console.log(data);
             $("#notes-container").append('<div class="note"><b>'+data.user.name+'</b>: <p>'+data.note.text+'</p></div>');
           });
+          socket.on('comment', function (data) {
+            console.log(data);
+            // TODO: kommentare sollen natürlich nicht in einer wurst mit den notizen dargestellt werden
+            $("#notes-container").append('<div class="comment"><b>'+data.user.name+'</b>: <p>'+data.comment.text+'</p></div>');
+          });
         
           $('#new-note').bind("keypress", function(e) {
             if(e.keyCode == 13){
               if($("#new-note").val().length > 0) {
                 $("#notes-container").append('<div class="note"><b>'+$("#username").val()+'</b>: <p>'+$("#new-note").val()+'</p></div>');
-                socket.emit("note", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-note").val(), "slide":{"page":1}});
+                // TODO: iduser darf hier natürlich nicht hardcoded sein
+                // iduser wird beim login vom server retourniert
+                //socket.emit("note", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-note").val(), "slide":{"page":1}});
               }
             }
           });

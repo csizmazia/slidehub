@@ -328,6 +328,37 @@ io.sockets.on('connection', function (socket) {
       }
     );
   });
+  
+  socket.on('vote', function (data_in) {
+    Step(
+      function() {
+        socket.get("idpresentation", this.parallel());
+        socket.get("user", this.parallel());
+      },
+      function (error, idpresentation, user) {
+        if(error) {
+          console.log(error);
+          socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
+        }
+        else {
+          if(data_in.type == "pos" || data_in.type == "neg") {
+            db.query("INSERT INTO vote(iduser,idnote,vote) VALUES(?,?,?)",[user.iduser,data_in.idnote,(data_in.type=="pos"?1:(-1))], function(error, results) {
+              if (error) {
+                console.log(error);
+                socket.emit("error",{"msg":"Could not store vote","code":error.code,"original":data_in});
+              }
+            });
+            var now = new Date();
+            var data_out = {"user":user,"slide":data_in.slide,"type":data_in.type,"idnote":data_in.idnote};
+            socket.broadcast.to("presentation-"+idpresentation).emit("vote", data_out);
+          }
+          else {
+            socket.emit("error",{"msg":"Wrong request format (field type)","code":"INTERNAL","original":data_in});
+          }
+        }
+      }
+    );
+  });
 });
 
 server.listen(8000);

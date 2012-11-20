@@ -28,6 +28,10 @@
             // TODO: kommentare sollen natürlich nicht in einer wurst mit den notizen dargestellt werden
             $("#notes-container").append('<div class="comment"><b>'+data.user.name+'</b>: <p>'+data.comment.text+'</p></div>');
           });
+          socket.on('vote', function (data) {
+            console.log(data);
+            // TODO: irgendwas sinnvolles mit dem vote tun
+          });
         
           $('#new-note').bind("keypress", function(e) {
             if(e.keyCode == 13){

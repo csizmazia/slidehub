@@ -342,7 +342,7 @@ io.sockets.on('connection', function (socket) {
         }
         else {
           if(data_in.type == "pos" || data_in.type == "neg") {
-            db.query("INSERT INTO vote(iduser,idnote,vote) VALUES(?,?,?)",[user.iduser,data_in.idnote,(data_in.type=="pos"?1:(-1))], function(error, results) {
+            db.query("INSERT INTO vote(iduser,idnote,vote) VALUES(?,?,?) ON DUPLICATE KEY UPDATE vote=VALUES(vote)",[user.iduser,data_in.idnote,(data_in.type=="pos"?1:(-1))], function(error, results) {
               if (error) {
                 console.log(error);
                 socket.emit("error",{"msg":"Could not store vote","code":error.code,"original":data_in});

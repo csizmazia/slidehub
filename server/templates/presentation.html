@@ -35,7 +35,14 @@
             pdf.getPage(currentPage).then(function(page) {
               
               // TODO: Resize the Viewport depending on the screen size / max canvas size
-              var scale = 1.2;
+              var originalHeight = page.getViewport(1.0).height;
+              var originalWidth = page.getViewport(1.0).width;
+
+              var windowHeight = $(window).height()*0.8;
+              var windowWidth = $(window).width()*0.75;
+
+              var scale = Math.min(windowHeight/originalHeight, windowWidth/originalWidth);
+
               var viewport = page.getViewport(scale);
           
               //
@@ -82,6 +89,8 @@
 
           $('#next-button').click(nextSlide);
           $('#prev-button').click(prevSlide);
+
+          $(window).resize(repaintPdf);
         
           $('#new-note').bind("keypress", function(e) {
             if(e.keyCode == 13){

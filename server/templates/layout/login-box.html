@@ -44,7 +44,11 @@
                 </div>
 
                 <div class="tab-pane" id="register">
-                     <form class="form-horizontal">
+                    <div id="register-form-messages">
+
+                    </div>
+
+                     <form class="form-horizontal" id="register-form" method="POST" action="/register">
 
                         <div class="control-group">
                             <label class="control-label" for="inputEmail">E-Mail</label>
@@ -76,7 +80,7 @@
                         
                         <div class="control-group">
                             <div class="controls">
-                                <input type="button" class="btn" value="Register" id="action-register" />
+                                <input type="submit" class="btn" value="Register" id="action-register" />
                             </div>
                         </div>
                     </form>

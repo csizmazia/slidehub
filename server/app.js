@@ -273,6 +273,28 @@ app.post("/login", function(req, res) {
   });
 });
 
+app.post("/register", function(req, res) {
+  
+  var ret = {};
+  var cookie = new Cookies(req, res);
+  var encryptedPassword = crypto.createHash('sha512').update(req.body.password).digest('hex');
+  db.query("INSERT INTO user(username,email,password) VALUES(?,?,?)",[req.body.username,req.body.email,encryptedPassword], function(error, results) {
+
+    if (error) {
+      ret.success = false;
+      console.log(error);
+      ret.msg = error.code;
+    }
+    else {
+      ret.data = req.body;
+      ret.success = true;
+      cookie.set("slidehub-logged-in", req.body.username);
+      console.log(results);
+    }
+    sendResponseJSON(res, ret);
+  });
+});
+
 
 app.get("/presentation/*", function(req, res) {
   var presentationId = req.url.split("/").pop();

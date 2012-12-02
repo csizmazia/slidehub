@@ -9,6 +9,7 @@ var app = express();
 var server = require("http").createServer(app);
 var io = io.listen(server);
 var Step = require("step");
+var crypto = require('crypto');
 
 // config
 app.set("title","SlideHub");
@@ -34,6 +35,7 @@ var db = mysql.createConnection({
 app.configure(function() {
   //app.all("*", requireAuthentication);
   //app.all("*", loadUser);
+  app.use(express.bodyParser());
   app.use(express.static(path.join(__dirname, 'public')));
   app.use(express.static(__dirname + "/public/presentations"));
   app.use(express.favicon(__dirname + "/public/img/favicon.ico"));
@@ -239,6 +241,38 @@ app.get("/ajax", function(req, res) {
     sendResponseJSON(res, {"success":false,"msg":"what do you want?"});
   }
 });
+
+
+
+// This method is invoked by the frontend to check the password / email address. After this the cookie is set. This is not safe, it should be replaced with a session id.
+app.post("/login", function(req, res) {
+  
+  var ret = {};
+  var cookie = new Cookies(req, res);
+  var encryptedPassword = crypto.createHash('sha512').update(req.body.password).digest('hex');
+  db.query("SELECT iduser, username, email FROM user WHERE email = ? AND password = ?",[req.body.email, encryptedPassword], function(error, results) { 
+    if (error) {
+      ret.success = false;
+      console.log(error);
+      ret.msg = error.code;
+    }
+    else {
+      if (results.length > 0) {
+        ret.data = results[0];
+        ret.success = true;
+        cookie.set("slidehub-logged-in", results[0].username);
+        console.log(results);
+      }
+      else {
+        ret.success = false;
+        console.log(encryptedPassword);
+      }
+    }
+    sendResponseJSON(res, ret);
+    
+  });
+});
+
 
 app.get("/presentation/*", function(req, res) {
   var presentationId = req.url.split("/").pop();

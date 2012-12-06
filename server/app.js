@@ -158,7 +158,7 @@ function getNotesAndComments(res, idpresentation, slideno) {
 // logic
 app.get("/", function(req, res) { 
   db.query("SELECT presentation.*,COUNT(note.idnote) AS note_count FROM presentation " +
-           "JOIN note ON presentation.idpresentation = note.idpresentation " +
+           "LEFT JOIN note ON presentation.idpresentation = note.idpresentation " +
            "GROUP BY presentation.idpresentation " +
            "ORDER BY timestamp DESC",[], function(error, results) {
     if (error) {
@@ -196,8 +196,7 @@ app.get("/about", function(req, res) {
 
 app.get("/top", function(req, res) {
   db.query("SELECT presentation.*,COUNT(note.idnote) AS note_count FROM presentation " +
-           "JOIN slide ON presentation.idpresentation = slide.idpresentation " +
-           "JOIN note ON slide.idslide = note.idslide " +
+           "LEFT JOIN note ON presentation.idpresentation = note.idpresentation " +
            "GROUP BY presentation.idpresentation " +
            "ORDER BY note_count DESC",[], function(error, results) {
     if (error) {

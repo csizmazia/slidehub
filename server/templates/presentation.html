@@ -30,6 +30,25 @@
         }
 
         function repaintPdf() {
+            
+            //clear notes from previous slide
+            $("#notes-container").empty();
+
+            //request notes for this slide from the database
+            $.getJSON('../../ajax', {
+              action:"get_notes",
+              idpresentation:{{presentation.idpresentation}},
+              slideno:currentPage
+            }
+            ,function(data) {
+              console.log(data);
+                $.each(data.data, function(id, note) {
+                  var t = note.timestamp.split(/[- : T .]/);
+                  console.log(t);
+                  var dateTime = new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
+                  $("#notes-container").append('<div class="note"><b>'+note.username+' (' + dateTime + ')'+'</b>: <p>'+note.content+'</p></div>');
+                });
+            });
 
             // Using promise to fetch the page
             pdf.getPage(currentPage).then(function(page) {

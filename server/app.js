@@ -119,29 +119,32 @@ function getNotesAndComments(res, idpresentation, slideno) {
           if(error) throw error;
           
           results.forEach(function(note) {
-            note.comments = [];
-            notes[note.idnote] = note;
-            db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], this.parallel());
+          note.comments = [];
+          notes[note.idnote] = note;
+            // db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], this.parallel());
           });
-        },
-        function (error) {
           var ret = {};
-          if(error) {
-            ret.success = false;
-            ret.msg = error.code;
-          }
-          else {
-            ret.success = true;
-            var notes_and_comments = notes;
+          ret.success = true;
+          ret.data = notes;
+        // },
+        // function (error) {
+        //   var ret = {};
+        //   if(error) {
+        //     ret.success = false;
+        //     ret.msg = error.code;
+        //   }
+        //   else {
+        //     ret.success = true;
+        //     var notes_and_comments = notes;
             
-            // arguments[0] is the error field
-            Array.prototype.slice.call(arguments, 1).forEach(function (comments) {
-              if(comments.length > 0) {
-                notes_and_comments[comments[0].idnote].comments = comments;
-              }
-            });
-            ret.data = notes_and_comments;
-          }
+        //     // arguments[0] is the error field
+        //     Array.prototype.slice.call(arguments, 1).forEach(function (comments) {
+        //       if(comments.length > 0) {
+        //         notes_and_comments[comments[0].idnote].comments = comments;
+        //       }
+        //     });
+        //     ret.data = notes_and_comments;
+        //   }
           sendResponseJSON(res, ret);
         }
       );

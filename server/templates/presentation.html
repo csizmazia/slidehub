@@ -53,16 +53,26 @@
             // Using promise to fetch the page
             pdf.getPage(currentPage).then(function(page) {
               
-              // TODO: Resize the Viewport depending on the screen size / max canvas size
               var originalHeight = page.getViewport(1.0).height;
               var originalWidth = page.getViewport(1.0).width;
 
-              var windowHeight = $(window).height()*0.8;
-              var windowWidth = $(window).width()*0.75;
+              var windowHeight = $(window).height();
+              var windowWidth = $(window).width();
 
-              var scale = Math.min(windowHeight/originalHeight, windowWidth/originalWidth);
+              // Adapt canvas width to responsive CSS
+              var canvasWidth = 0;
+              if(windowWidth >= 1200) {
+                  canvasWidth = 870;
+              } else if (windowWidth >= 980) {
+                  canvasWidth = 700;
+              } else if (windowWidth >= 768) {
+                  canvasWidth = 538;
+              } else {
+                  canvasWidth = windowWidth-40;
+              }
 
-              var viewport = page.getViewport(scale);
+              // Width of canvas is always maximized 
+              var viewport = page.getViewport(canvasWidth/originalWidth);
           
               //
               // Prepare canvas using PDF page dimensions

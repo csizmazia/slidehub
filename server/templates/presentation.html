@@ -46,7 +46,8 @@
                   var t = note.timestamp.split(/[- : T .]/);
                   console.log(t);
                   var dateTime = new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
-                  $("#notes-container").append('<div class="note"><b>'+note.username+' (' + dateTime + ')'+'</b>: <p>'+note.content+'</p></div>');
+                  dateTime.format('dd');
+                  $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime + ')'+'</h5>'+note.content+'</div>');
                 });
             });
 
@@ -104,7 +105,7 @@
           });
           socket.on('note', function (data) {
             console.log(data);
-            $("#notes-container").append('<div class="note"><b>'+data.user.name+'</b>: <p>'+data.note.text+'</p></div>');
+            $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime + ')'+'</h5>'+note.content+'</div>');
           });
           socket.on('comment', function (data) {
             console.log(data);
@@ -124,7 +125,8 @@
           $('#new-note').bind("keypress", function(e) {
             if(e.keyCode == 13){
               if($("#new-note").val().length > 0) {
-                $("#notes-container").append('<div class="note"><b>'+$("#username").val()+'</b>: <p>'+$("#new-note").val()+'</p></div>');
+                var dateTime = new Date();
+                $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+$("#username").val()+' (' + dateTime + ')'+'</h5>'+$("#new-note").val()+'</div>');
                 // TODO: iduser darf hier natürlich nicht hardcoded sein
                 // iduser wird beim login vom server retourniert
                 socket.emit("note", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-note").val(), "slide":{"page":currentPage}});
@@ -165,7 +167,7 @@
             </div>
           </div>
           <div class="span3">
-            
+
             New note: <input type="text" id="new-note" />
             <h2>Notes:</h2>
             <div id="notes-container">

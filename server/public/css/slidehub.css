@@ -35,8 +35,23 @@
 }
 
 .note {
-  border: 1px solid red;
+  overflow: hidden;
+  *overflow: visible;
+  zoom: 1;
 }
+
+.note,
+.note .note {
+  margin-top: 15px;
+}
+
+.note:first-child {
+  margin-top: 0;
+}
+.note .pull-left {
+  margin-right: 10px;
+}    
+
 .comment {
   border: 1px solid blue;
 }

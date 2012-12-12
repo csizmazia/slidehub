@@ -41,12 +41,18 @@
               slideno:currentPage
             }
             ,function(data) {
-              console.log(data);
                 $.each(data.data, function(id, note) {
                   var t = note.timestamp.split(/[- : T .]/);
                   console.log(t);
                   var dateTime = new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
-                  $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime + ')'+'</h5>'+note.content+'</div>');
+
+                  var comments = '';
+
+                  $.each(note.comments, function(id, comment) {
+                    comments += '<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a>' + comment.content + '</div>';
+                  });
+
+                  $("#notes-container").append('<div class="note" id="note' + note.idnote + '"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime + ')'+'</h5>'+note.content+'<div class="comments-container" id="comments' + note.idnote +'"><a href="javascript:void(0)" onclick="commentNote(this, ' +  note.idnote +');">add a comment</a>' + comments + '</div></div></div>');
                 });
             });
 
@@ -93,6 +99,18 @@
             });
           }
 
+          function commentNote(caller, noteId) {
+            $("#comments" + noteId).append('<div class="commentInput" id="addComment'+ noteId +'"><input type="text" id="new-comment'+noteId+'"/><a href="javascript:void(0)" onclick="addComment(this, ' +  noteId +');">add</a></div>');
+          }
+
+          function addComment(caller, noteId) {
+                      var socket = io.connect('http://localhost');
+             $("#comments" + noteId).append('<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a>' + 
+              $("#new-comment" +noteId).val() + '</div>');
+             socket.emit("comment", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-comment" +noteId).val(), "idnote":noteId});
+            $(".commentInput").remove();
+          }
+
         $(document).ready(function() {
           var socket = io.connect('http://localhost');
           // TODO: iduser darf hier natürlich nicht hardcoded sein
@@ -132,7 +150,6 @@
               }
             }
           });
-
 
           $(document).bind('keydown', function(evt) {
             if(evt.keyCode == 37) {

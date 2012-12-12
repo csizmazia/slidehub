@@ -53,10 +53,12 @@
 }    
 
 .comment {
-  border: 1px solid blue;
+  margin-top: 15px;
 }
 
-
+.commentInput {
+  margin-top: 15px;
+}
 
 
 

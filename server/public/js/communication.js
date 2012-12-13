@@ -32,7 +32,7 @@ var communication = {
   },
 
   socketNote: function(data) {
-    communication.addNote(data.user.username, data.user.email, data.note, new Date(data.note.timestamp));
+    communication.addNote(data.user.username, data.user.email, data.note, moment(data.note.timestamp));
   },
 
   socketComment: function(data) {
@@ -58,7 +58,7 @@ var communication = {
   addNote: function(username, email, note, date) {
     var gravatar = '"http://www.gravatar.com/avatar/'+$.md5(email)+'?s=32&d=identicon"';
     $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src='+gravatar+ 
-      '></a><div class="media-body"><h5 class="media-heading">'+username+' (' + date + ')'+'</h5>'+note.text+'' + 
+      '></a><div class="media-body"><h5 class="media-heading">'+username+' (' + date.format("MMM Do YYYY, HH:mm:ss")+ ')'+'</h5>'+note.text+'' + 
       '<div class="comments-container" id="comments' + note.idnote +'"><a href="javascript:void(0)" onclick="communication.addCommentInputBox(this, ' +  note.idnote +');">add a comment</a></div></div></div></div>');
   },
 

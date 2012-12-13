@@ -65,7 +65,7 @@ var communication = {
    * This method add a new comment to the list in the frontent.
    */
   addComment: function(idnote, text, username) {
-    $("#comments" + idnote).append('<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a>' +  text + '</div>');
+    $("#comments" + idnote).append('<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a><h5 class="media-heading">'+username+'</h5>' +  text + '</div>');
   },
 
   /**

@@ -53,7 +53,7 @@
                   var comments = '';
 
                   $.each(note.comments, function(id, comment) {
-                    comments += '<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a>' + comment.content + '</div>';
+                    comments += '<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a><h5 class="media-heading">' + comment.username + '</h5>' + comment.content + '</div>';
                   });
 
                   $("#notes-container").append('<div class="note" id="note' + note.idnote + '"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime + ')'+'</h5>'+note.content+'<div class="comments-container" id="comments' + note.idnote +'"><a href="javascript:void(0)" onclick="communication.addCommentInputBox(this, ' +  note.idnote +');">add a comment</a>' + comments + '</div></div></div>');

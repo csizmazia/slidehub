@@ -21,6 +21,12 @@
         function nextSlide() {
           if(pdf) {
             currentPage = Math.min(currentPage+1, pdf.numPages);
+            if(currentPage > 1) {
+              $('#prev-button').removeClass('disabled');
+            }                
+            if (currentPage == pdf.numPages){
+                $('#next-button').addClass('disabled');
+            }
             repaintPdf();
           }
         }
@@ -28,6 +34,12 @@
         function prevSlide() {
           if(pdf) {
             currentPage = Math.max(currentPage-1, 1);
+            if (currentPage == 1){
+                $('#prev-button').addClass('disabled');
+            }
+            if (currentPage != pdf.numPages){
+                $('#next-button').removeClass('disabled');
+            }
             repaintPdf();     
           }
 
@@ -107,6 +119,9 @@
 
           // Init the communication with the server:
           communication.init(sessionid, idpresentation, username);
+          if(currentPage == 1) {
+              $('#prev-button').addClass('disabled');
+          }
 
           $('#next-button').click(nextSlide);
           $('#prev-button').click(prevSlide);
@@ -140,14 +155,14 @@
           <div class="span9">
             <canvas id="pdf-canvas" class="pdf-document"></canvas>
             <div class="slideNav">
-                <button type="prev" id="prev-button" class="btn btn-primary">Prev</button>
-                <button type="next" id="next-button" class="btn btn-primary">Next</button>
+            <button type="prev" id="prev-button" class="btn btn-info disabled"><i class="icon-step-backward icon-white"></i> Prev</button>
+            <button type="next" id="next-button" class="btn btn-info pull-right">Next <i class="icon-step-forward icon-white"></i></button>
             </div>
           </div>
           <div class="span3">
 
-            New note: <input type="text" id="new-note" />
-            <h2>Notes:</h2>
+              <h4>New note:</h4> <textarea rows=3 id="new-note" style="width: 100%"></textarea>
+            <h3>Notes:</h3>
             <div id="notes-container">
             </div>
           </div>

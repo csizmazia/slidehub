@@ -27,6 +27,10 @@
 #signInButton {
 }
 
+#logoutButton {
+    margin-left: 5px;
+}
+
 .userbox {
 	margin-top: 8px;
 	margin-bottom: 8px;
@@ -68,7 +72,9 @@
   margin-top: 15px;
 }
 
-
+.slideNav {
+  padding-top: 5px;
+}
 
 
 .carousel {

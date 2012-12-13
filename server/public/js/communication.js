@@ -48,6 +48,7 @@ var communication = {
         
         // Reset input field
         $("#new-note").val("");
+        return false;
       }
     }
   },

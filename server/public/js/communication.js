@@ -32,11 +32,11 @@ var communication = {
   },
 
   socketNote: function(data) {
-    communication.addNote(data.user.username, data.note, new Date(data.note.timestamp));
+    communication.addNote(data.user.username, data.user.email, data.note, new Date(data.note.timestamp));
   },
 
   socketComment: function(data) {
-    communication.addComment(data.idnote, data.comment.text, data.user.username);
+    communication.addComment(data.idnote, data.comment.text, data.user.username, data.user.email);
   },
 
   addNoteEvent: function(event) {
@@ -55,8 +55,9 @@ var communication = {
   /**
    * This method adds a new note in the frontent.
    */
-  addNote: function(username, note, date) {
-    $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"' + 
+  addNote: function(username, email, note, date) {
+    var gravatar = '"http://www.gravatar.com/avatar/'+$.md5(email)+'?s=32&d=identicon"';
+    $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src='+gravatar+ 
       '></a><div class="media-body"><h5 class="media-heading">'+username+' (' + date + ')'+'</h5>'+note.text+'' + 
       '<div class="comments-container" id="comments' + note.idnote +'"><a href="javascript:void(0)" onclick="communication.addCommentInputBox(this, ' +  note.idnote +');">add a comment</a></div></div></div></div>');
   },
@@ -64,8 +65,9 @@ var communication = {
   /**
    * This method add a new comment to the list in the frontent.
    */
-  addComment: function(idnote, text, username) {
-    $("#comments" + idnote).append('<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a><h5 class="media-heading">'+username+'</h5>' +  text + '</div>');
+  addComment: function(idnote, text, username, email) {
+    var gravatar = '"http://www.gravatar.com/avatar/'+$.md5(email)+'?s=24&d=identicon"';
+    $("#comments" + idnote).append('<div class="comment"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><h5 class="media-heading">'+username+'</h5>' +  text + '</div>');
   },
 
   /**

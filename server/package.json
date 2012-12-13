@@ -9,6 +9,7 @@
     "mu2": "0.5.17",
     "socket.io": "",
     "cookies": "",
-    "step": ""
+    "step": "",
+    "gravatar": ""
   }
 }

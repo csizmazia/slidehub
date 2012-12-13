@@ -100,7 +100,7 @@ function getNotesAndComments(res, idpresentation, slideno) {
       var notes = {};
       Step(
         function() {
-          db.query("SELECT note.idnote,note.content,note.slide_x,note.slide_y,note.type,note.timestamp,user.iduser,user.username FROM note JOIN user ON note.iduser = user.iduser WHERE idpresentation = ? AND slide_no = ?",[idpresentation, slideno], this);
+          db.query("SELECT note.idnote,note.content,note.slide_x,note.slide_y,note.type,note.timestamp,user.iduser,user.username, user.email FROM note JOIN user ON note.iduser = user.iduser WHERE idpresentation = ? AND slide_no = ?",[idpresentation, slideno], this);
         },
         function(error, results) {
           if(error) throw error;
@@ -110,7 +110,7 @@ function getNotesAndComments(res, idpresentation, slideno) {
           results.forEach(function(note) {
             note.comments = [];
             notes[note.idnote] = note;
-               db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], parallel());
+               db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username, user.email FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], parallel());
           });
           var ret = {};
           ret.success = true;

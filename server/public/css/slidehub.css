@@ -25,12 +25,11 @@
 
 
 #signInButton {
-  margin-top: 11px;
-  margin-bottom: 11px;
 }
 
 .userbox {
 	margin-top: 8px;
+	margin-bottom: 8px;
 }
 
 .logged-in-text {

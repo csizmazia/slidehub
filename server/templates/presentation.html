@@ -9,7 +9,11 @@
     {{#is_available}}
       <script src="/js/pdf.js"></script>
       <script src="/socket.io/socket.io.js"></script>
+      <script src="/js/communication.js"></script>
       <script>
+        var sessionid = '{{connect_sid}}';
+        var username = '{{username}}';
+        var idpresentation = '{{presentation.idpresentation}}';
 
         var currentPage = 1;
         var pdf = null;
@@ -37,7 +41,7 @@
             //request notes for this slide from the database
             $.getJSON('../../ajax', {
               action:"get_notes",
-              idpresentation:{{presentation.idpresentation}},
+              idpresentation:idpresentation,
               slideno:currentPage
             }
             ,function(data) {
@@ -52,7 +56,7 @@
                     comments += '<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a>' + comment.content + '</div>';
                   });
 
-                  $("#notes-container").append('<div class="note" id="note' + note.idnote + '"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime + ')'+'</h5>'+note.content+'<div class="comments-container" id="comments' + note.idnote +'"><a href="javascript:void(0)" onclick="commentNote(this, ' +  note.idnote +');">add a comment</a>' + comments + '</div></div></div>');
+                  $("#notes-container").append('<div class="note" id="note' + note.idnote + '"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime + ')'+'</h5>'+note.content+'<div class="comments-container" id="comments' + note.idnote +'"><a href="javascript:void(0)" onclick="communication.addCommentInputBox(this, ' +  note.idnote +');">add a comment</a>' + comments + '</div></div></div>');
                 });
             });
 
@@ -99,58 +103,16 @@
             });
           }
 
-          function commentNote(caller, noteId) {
-            $("#comments" + noteId).append('<div class="commentInput" id="addComment'+ noteId +'"><input type="text" id="new-comment'+noteId+'"/><a href="javascript:void(0)" onclick="addComment(this, ' +  noteId +');">add</a></div>');
-          }
-
-          function addComment(caller, noteId) {
-                      var socket = io.connect('http://localhost');
-             $("#comments" + noteId).append('<div class="comment"><a class="pull-left" ><img class="media-object" src="http://placehold.it/24x24"></a>' + 
-              $("#new-comment" +noteId).val() + '</div>');
-             socket.emit("comment", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-comment" +noteId).val(), "idnote":noteId});
-            $(".commentInput").remove();
-          }
-
         $(document).ready(function() {
-          var socket = io.connect('http://localhost');
-          // TODO: iduser darf hier natürlich nicht hardcoded sein
-          // iduser wird beim login vom server retourniert
-          socket.emit("hello",{ idpresentation:{{presentation.idpresentation}}, "user":{"iduser":1, "name":$("#username").val()} });
-          socket.on('hi', function (data) {
-            console.log("jetzt kann es losgehen");
-            // TODO: erst jetzt kann es losgehn
-          });
-          socket.on('note', function (data) {
-            console.log(data);
-            $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime + ')'+'</h5>'+note.content+'</div>');
-          });
-          socket.on('comment', function (data) {
-            console.log(data);
-            // TODO: kommentare sollen natürlich nicht in einer wurst mit den notizen dargestellt werden
-            $("#notes-container").append('<div class="comment"><b>'+data.user.name+'</b>: <p>'+data.comment.text+'</p></div>');
-          });
-          socket.on('vote', function (data) {
-            console.log(data);
-            // TODO: irgendwas sinnvolles mit dem vote tun
-          });
+
+          // Init the communication with the server:
+          communication.init(sessionid, idpresentation, username);
 
           $('#next-button').click(nextSlide);
           $('#prev-button').click(prevSlide);
 
           $(window).resize(repaintPdf);
         
-          $('#new-note').bind("keypress", function(e) {
-            if(e.keyCode == 13){
-              if($("#new-note").val().length > 0) {
-                var dateTime = new Date();
-                $("#notes-container").append('<div class="note"><a class="pull-left" ><img class="media-object" src="http://placehold.it/32x32"></a><div class="media-body"><h5 class="media-heading">'+$("#username").val()+' (' + dateTime + ')'+'</h5>'+$("#new-note").val()+'</div>');
-                // TODO: iduser darf hier natürlich nicht hardcoded sein
-                // iduser wird beim login vom server retourniert
-                socket.emit("note", {"user":{"iduser":1, "name":$("#username").val()}, "text":$("#new-note").val(), "slide":{"page":currentPage}});
-              }
-            }
-          });
-
           $(document).bind('keydown', function(evt) {
             if(evt.keyCode == 37) {
               prevSlide();

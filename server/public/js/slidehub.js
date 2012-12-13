@@ -82,9 +82,4 @@ $(document).ready(function() {
 		return false;
 	});
 
-	// $('#action-register').on("click", function() {
-	// 	alert("register");
-	// });
-
-
 });

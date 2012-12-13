@@ -11,9 +11,12 @@ var io = io.listen(server);
 var Step = require("step");
 var crypto = require('crypto');
 
+var session_store  = new express.session.MemoryStore;
+
 // config
 app.set("title","SlideHub");
 app.set("env","dev"); // dev|prod
+
 
 if (app.get("env") == "dev") {
   app.set("db host", "localhost");
@@ -40,6 +43,8 @@ app.configure(function() {
   app.use(express.static(__dirname + "/public/presentations"));
   app.use(express.favicon(__dirname + "/public/img/favicon.ico"));
   app.use(express.logger());
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: 'sole3sdf49ksolkljnzztjur', store: session_store }));
 });
 
 mu.root = __dirname + '/templates';
@@ -60,44 +65,13 @@ function sendResponseJSON(res, ret) {
  * This method checks if a user is signed in with the given request.
  */
 function getUserNameByRequest(req, res) {
-  var cookie = new Cookies(req, res);
-  if (typeof cookie.get("slidehub-logged-in") != 'undefined') {
-    return cookie.get("slidehub-logged-in");
+  if (typeof req.session.user != 'undefined') {
+    var username = req.session.user.username;
+    if (typeof username != 'undefined') {
+      return username;
+    }
   }
-  else {
-    return null;
-  }
-}
-
-function login(res, cookie, username) {
-  if(username) {
-    db.query("INSERT INTO user(username,email) VALUES(?,?)",[username,username+"@mailinator.com"], function(error, results) {
-      var ret = {};
-      if (error && error.code != "ER_DUP_ENTRY") {
-        ret.success = false;
-        ret.msg = error.code;
-        sendResponseJSON(res, ret);
-      }
-      else {
-        db.query("SELECT iduser,username,email FROM user WHERE username = ?",[username], function(error, results) {
-          if (error) {
-            ret.success = false;
-            ret.msg = error.code;
-          }
-          else {
-            ret.success = true;
-            ret.data = results[0];
-            cookie.set("slidehub-logged-in",username);
-          }
-          sendResponseJSON(res, ret);
-          
-        });
-      }
-    });
-  }
-  else {
-    sendResponseJSON(res, {"success":false,"msg":"Please provide a username"});
-  }
+  return null;
 }
 
 function searchPresentations(res, term) {
@@ -201,9 +175,11 @@ app.get("/", function(req, res) {
 
 
 app.get("/logout", function(req, res) { 
-    var cookie = new Cookies(req, res);
-    var user;
-    cookie.set("slidehub-logged-in", user);
+    // var cookie = new Cookies(req, res);
+    // var user;
+    // cookie.set("slidehub-username", user);
+    req.session.username = null;
+    req.session.iduser = null;
     res.statusCode = 302;
     res.header('location', "/");
     res.end();
@@ -278,7 +254,7 @@ app.get("/ajax", function(req, res) {
 app.post("/login", function(req, res) {
   
   var ret = {};
-  var cookie = new Cookies(req, res);
+  // var cookie = new Cookies(req, res);
   var encryptedPassword = crypto.createHash('sha512').update(req.body.password).digest('hex');
   db.query("SELECT iduser, username, email FROM user WHERE email = ? AND password = ?",[req.body.email, encryptedPassword], function(error, results) { 
     if (error) {
@@ -290,7 +266,7 @@ app.post("/login", function(req, res) {
       if (results.length > 0) {
         ret.data = results[0];
         ret.success = true;
-        cookie.set("slidehub-logged-in", results[0].username);
+        req.session.user = results[0];
         console.log(results);
       }
       else {
@@ -314,20 +290,31 @@ app.post("/register", function(req, res) {
       ret.success = false;
       console.log(error);
       ret.msg = error.code;
+      sendResponseJSON(res, ret);
     }
     else {
       ret.data = req.body;
       ret.success = true;
-      cookie.set("slidehub-logged-in", req.body.username);
-      console.log(results);
+      db.query("SELECT iduser, username, email FROM user WHERE iduser = ?",[results.insertId], function(error, results) { 
+        if (error) {
+          ret.success = false;
+          console.log(error);
+          ret.msg = error.code;
+        }
+        else {
+          req.session.user = results[0];
+          console.log(results);
+        }
+        sendResponseJSON(res, ret);
+     });
     }
-    sendResponseJSON(res, ret);
   });
 });
 
 
 app.get("/presentation/*", function(req, res) {
   var presentationId = req.url.split("/").pop();
+
   
   db.query("SELECT * FROM presentation WHERE filename = ?",[presentationId], function(error, results) {
     if (error) {
@@ -337,6 +324,7 @@ app.get("/presentation/*", function(req, res) {
     
     var view = {
       title: app.get("title"),
+      connect_sid: req.sessionID,
       is_available: results.length == 1,
       username: getUserNameByRequest(req, res),
       presentation: results[0]
@@ -356,7 +344,6 @@ io.sockets.on('connection', function (socket) {
     Step(
       function() {
         socket.set("idpresentation", data_in.idpresentation, this.parallel());
-        socket.set("user", data_in.user, this.parallel());
       },
       function() {
         socket.emit("hi");
@@ -365,86 +352,94 @@ io.sockets.on('connection', function (socket) {
   });
   
   socket.on('note', function (data_in) {
-    Step(
-      function() {
-        socket.get("idpresentation", this.parallel());
-        socket.get("user", this.parallel());
-      },
-      function (error, idpresentation, user) {
-        if(error) {
-          console.log(error);
-          socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
+    session_store.get(data_in.sid, function(error, session){
+      Step(
+        function() {
+          socket.get("idpresentation", this.parallel());
+        },
+        function (error, idpresentation) {
+          if(error) {
+            console.log(error);
+            socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
+          }
+          else {
+            db.query("INSERT INTO note(idpresentation,iduser,content,slide_no,slide_x,slide_y,type) VALUES(?,?,?,?,?,?,'std')",[idpresentation,session.user.iduser,data_in.text,data_in.slide.page,data_in.slide.x,data_in.slide.y], function(error, results) {
+              if (error) {
+                console.log(error);
+                socket.emit("error",{"msg":"Could not store note","code":error.code,"original":data_in});
+              }
+              else {
+                var now = new Date();
+                var data_out = {"user":session.user,"slide":data_in.slide,"note":{"text":data_in.text,"timestamp":now.getTime(),"idnote":results.insertId}};
+                socket.emit("note", data_out);
+                socket.broadcast.to("presentation-"+idpresentation).emit("note", data_out);
+              }
+            });
+          }
         }
-        else {
-          db.query("INSERT INTO note(idpresentation,iduser,content,slide_no,slide_x,slide_y,type) VALUES(?,?,?,?,?,?,'std')",[idpresentation,user.iduser,data_in.text,data_in.slide.page,data_in.slide.x,data_in.slide.y], function(error, results) {
-            if (error) {
-              console.log(error);
-              socket.emit("error",{"msg":"Could not store note","code":error.code,"original":data_in});
-            }
-          });
-          var now = new Date();
-          var data_out = {"user":user,"slide":data_in.slide,"note":{"text":data_in.text,"timestamp":now.getTime()}};
-          socket.broadcast.to("presentation-"+idpresentation).emit("note", data_out);
-        }
-      }
-    );
+      );
+    });
+    
   });
   
   socket.on('comment', function (data_in) {
-    Step(
-      function() {
-        socket.get("idpresentation", this.parallel());
-        socket.get("user", this.parallel());
-      },
-      function (error, idpresentation, user) {
-        if(error) {
-          console.log(error);
-          socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
-        }
-        else {
-          db.query("INSERT INTO comment(idnote,iduser,content) VALUES(?,?,?)",[data_in.idnote,user.iduser,data_in.text], function(error, results) {
-            if (error) {
-              console.log(error);
-              socket.emit("error",{"msg":"Could not store comment","code":error.code,"original":data_in});
-            }
-          });
-          var now = new Date();
-          var data_out = {"user":user,"slide":data_in.slide,"comment":{"text":data_in.text,"timestamp":now.getTime()},"idnote":data_in.idnote};
-          socket.broadcast.to("presentation-"+idpresentation).emit("comment", data_out);
-        }
-      }
-    );
-  });
-  
-  socket.on('vote', function (data_in) {
-    Step(
-      function() {
-        socket.get("idpresentation", this.parallel());
-        socket.get("user", this.parallel());
-      },
-      function (error, idpresentation, user) {
-        if(error) {
-          console.log(error);
-          socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
-        }
-        else {
-          if(data_in.type == "pos" || data_in.type == "neg") {
-            db.query("INSERT INTO vote(iduser,idnote,vote) VALUES(?,?,?) ON DUPLICATE KEY UPDATE vote=VALUES(vote)",[user.iduser,data_in.idnote,(data_in.type=="pos"?1:(-1))], function(error, results) {
+    session_store.get(data_in.sid, function(error, session){
+      Step(
+        function() {
+          socket.get("idpresentation", this.parallel());
+        },
+        function (error, idpresentation) {
+          if(error) {
+            console.log(error);
+            socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
+          }
+          else {
+            db.query("INSERT INTO comment(idnote,iduser,content) VALUES(?,?,?)",[data_in.idnote,session.user.iduser,data_in.text], function(error, results) {
               if (error) {
                 console.log(error);
-                socket.emit("error",{"msg":"Could not store vote","code":error.code,"original":data_in});
+                socket.emit("error",{"msg":"Could not store comment","code":error.code,"original":data_in});
               }
             });
             var now = new Date();
-            var data_out = {"user":user,"slide":data_in.slide,"type":data_in.type,"idnote":data_in.idnote};
-            socket.broadcast.to("presentation-"+idpresentation).emit("vote", data_out);
-          }
-          else {
-            socket.emit("error",{"msg":"Wrong request format (field type)","code":"INTERNAL","original":data_in});
+            var data_out = {"user":session.user,"slide":data_in.slide,"comment":{"text":data_in.text,"timestamp":now.getTime()},"idnote":data_in.idnote};
+            socket.emit("comment", data_out);
+            socket.broadcast.to("presentation-"+idpresentation).emit("comment", data_out);
           }
         }
-      }
-    );
+      );
+    });
+  });
+  
+  socket.on('vote', function (data_in) {
+      session_store.get(data_in.sid, function(error, session){
+      Step(
+        function() {
+          socket.get("idpresentation", this.parallel());
+        },
+        function (error, idpresentation) {
+          if(error) {
+            console.log(error);
+            socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
+          }
+          else {
+            if(data_in.type == "pos" || data_in.type == "neg") {
+              db.query("INSERT INTO vote(iduser,idnote,vote) VALUES(?,?,?) ON DUPLICATE KEY UPDATE vote=VALUES(vote)",[session.user.iduser,data_in.idnote,(data_in.type=="pos"?1:(-1))], function(error, results) {
+                if (error) {
+                  console.log(error);
+                  socket.emit("error",{"msg":"Could not store vote","code":error.code,"original":data_in});
+                }
+              });
+              var now = new Date();
+              var data_out = {"user":session.user,"slide":data_in.slide,"type":data_in.type,"idnote":data_in.idnote};
+              socket.broadcast.to("presentation-"+idpresentation).emit("vote", data_out);
+            }
+            else {
+              socket.emit("error",{"msg":"Wrong request format (field type)","code":"INTERNAL","original":data_in});
+            }
+          }
+        }
+      );
+    });
   });
 });
 

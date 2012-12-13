@@ -56,6 +56,19 @@ function sendResponseJSON(res, ret) {
   res.end();
 }
 
+/**
+ * This method checks if a user is signed in with the given request.
+ */
+function getUserNameByRequest(req, res) {
+  var cookie = new Cookies(req, res);
+  if (typeof cookie.get("slidehub-logged-in") != 'undefined') {
+    return cookie.get("slidehub-logged-in");
+  }
+  else {
+    return null;
+  }
+}
+
 function login(res, cookie, username) {
   if(username) {
     db.query("INSERT INTO user(username,email) VALUES(?,?)",[username,username+"@mailinator.com"], function(error, results) {
@@ -174,6 +187,7 @@ app.get("/", function(req, res) {
     var view = {
       title: app.get("title"),
       activeHome: 'active',
+      username: getUserNameByRequest(req, res),
       presentations: results
     };
     
@@ -185,9 +199,21 @@ app.get("/", function(req, res) {
   });
 });
 
+
+app.get("/logout", function(req, res) { 
+    var cookie = new Cookies(req, res);
+    var user;
+    cookie.set("slidehub-logged-in", user);
+    res.statusCode = 302;
+    res.header('location', "/");
+    res.end();
+});
+
+
 app.get("/about", function(req, res) { 
     var view = {
       title: app.get("title"),
+      username: getUserNameByRequest(req, res),
       activeAbout: 'active'
     };
     
@@ -211,6 +237,7 @@ app.get("/top", function(req, res) {
     
     var view = {
       title: app.get("title"),
+      username: getUserNameByRequest(req, res),
       presentations: results
     };
     
@@ -245,7 +272,6 @@ app.get("/ajax", function(req, res) {
     sendResponseJSON(res, {"success":false,"msg":"what do you want?"});
   }
 });
-
 
 
 // This method is invoked by the frontend to check the password / email address. After this the cookie is set. This is not safe, it should be replaced with a session id.
@@ -312,6 +338,7 @@ app.get("/presentation/*", function(req, res) {
     var view = {
       title: app.get("title"),
       is_available: results.length == 1,
+      username: getUserNameByRequest(req, res),
       presentation: results[0]
     };
     

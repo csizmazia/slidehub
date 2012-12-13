@@ -17,10 +17,18 @@
                 <li class="{{activeHome}}"><a href="/">Home</a></li>
                 <li class="{{activeAbout}}"><a href="/about">About</a></li>
             </ul>
-            <div class="pull-right">
-                <a id="signInButton" class="btn btn-info btn-small round2" href="#loginBox" data-toggle="modal">
-                    <i class="icon-white icon-user"></i> Sign In
-                 </a>
+            <div class="pull-right userbox">
+                {{^username}}
+                  <a id="signInButton" class="btn btn-info btn-small round2" href="#loginBox" data-toggle="modal">
+                      <i class="icon-white icon-user"></i> Sign In
+                  </a>
+                {{/username}}
+                {{#username}}
+                  <div class="logged-in-text">Logged in as <a>{{username}}</a>.</div>
+                  <a id="logoutButton" class="btn btn-info  btn-small round2" href="/logout">
+                      <i class="icon-white icon-user"></i> Logout
+                  </a>
+                {{/username}}
             </div>
         </div>
     </div>

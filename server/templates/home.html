@@ -46,15 +46,24 @@
 
 		<div class="container">
 
-			<span class="row-fluid">
-				<span class="span4">
-					<ul>
-					{{#presentations}}
-					<li><a href="/presentation/{{filename}}">{{title}}</a> ({{note_count}})</b>
-					{{/presentations}}
-					</ul>
+			<h3>Presentations</h3>
+			{{#username}}
+				<span class="row-fluid">
+					<span class="span4">
+						<ul>
+						{{#presentations}}
+							<li><a href="/presentation/{{filename}}">{{title}}</a> ({{note_count}})</b>
+						{{/presentations}}
+						</ul>
+					</span>
 				</span>
-			</span>
+			{{/username}}
+
+			{{^username}}
+				<a id="signInButton" class="btn btn-info btn-small round2" href="#loginBox" data-toggle="modal">
+                    <i class="icon-white icon-user"></i> Sign In
+                </a> 
+			{{/username}}
 
 		</div>
 

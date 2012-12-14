@@ -178,8 +178,7 @@ app.get("/logout", function(req, res) {
     // var cookie = new Cookies(req, res);
     // var user;
     // cookie.set("slidehub-username", user);
-    req.session.username = null;
-    req.session.iduser = null;
+    req.session.destroy();
     res.statusCode = 302;
     res.header('location', "/");
     res.end();

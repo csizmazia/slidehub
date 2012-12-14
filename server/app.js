@@ -100,7 +100,7 @@ function getNotesAndComments(res, idpresentation, slideno) {
       var notes = {};
       Step(
         function() {
-          db.query("SELECT note.idnote,note.content,note.slide_x,note.slide_y,note.type,note.timestamp,user.iduser,user.username, user.email FROM note JOIN user ON note.iduser = user.iduser WHERE idpresentation = ? AND slide_no = ?",[idpresentation, slideno], this);
+          db.query("SELECT note.idnote,note.content,note.slide_x,note.slide_y,note.type,note.timestamp,user.iduser,user.username, md5(user.email) AS md5email FROM note JOIN user ON note.iduser = user.iduser WHERE idpresentation = ? AND slide_no = ?",[idpresentation, slideno], this);
         },
         function(error, results) {
           if(error) throw error;
@@ -110,7 +110,7 @@ function getNotesAndComments(res, idpresentation, slideno) {
           results.forEach(function(note) {
             note.comments = [];
             notes[note.idnote] = note;
-               db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username, user.email FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], parallel());
+               db.query("SELECT comment.idnote,comment.idcomment,comment.content,comment.timestamp,user.iduser,user.username, md5(user.email) AS md5email FROM comment JOIN user ON comment.iduser = user.iduser WHERE idnote = ?",[note.idnote], parallel());
           });
           var ret = {};
           ret.success = true;
@@ -256,7 +256,7 @@ app.post("/login", function(req, res) {
   var ret = {};
   // var cookie = new Cookies(req, res);
   var encryptedPassword = crypto.createHash('sha512').update(req.body.password).digest('hex');
-  db.query("SELECT iduser, username, email FROM user WHERE email = ? AND password = ?",[req.body.email, encryptedPassword], function(error, results) { 
+  db.query("SELECT iduser, username, md5(email) AS md5email FROM user WHERE email = ? AND password = ?",[req.body.email, encryptedPassword], function(error, results) { 
     if (error) {
       ret.success = false;
       console.log(error);
@@ -295,7 +295,7 @@ app.post("/register", function(req, res) {
     else {
       ret.data = req.body;
       ret.success = true;
-      db.query("SELECT iduser, username, email FROM user WHERE iduser = ?",[results.insertId], function(error, results) { 
+      db.query("SELECT iduser, username, md5(email) AS md5email FROM user WHERE iduser = ?",[results.insertId], function(error, results) { 
         if (error) {
           ret.success = false;
           console.log(error);

@@ -65,7 +65,7 @@
 
                   $.each(note.comments, function(id, comment) {
                     var gravatar = '"http://www.gravatar.com/avatar/'+$.md5(comment.email)+'?s=24&d=identicon"';
-                    comments += '<div class="comment"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><h5 class="media-heading">' + comment.username + '</h5>' + comment.content + '</div>';
+                    comments += '<div class="comment"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><div class="media-body"><h5 class="media-heading">' + comment.username + '</h5>' + comment.content + '</div></div>';
                   });
                   var button = '';
                   if (username != '')  {
@@ -180,7 +180,7 @@
           <div class="span9">
             <div class="slideNav row-fluid">
               <button type="prev" id="" class="prev-button btn btn-info disabled span2"><i class="icon-step-backward icon-white"></i> Prev</button>
-              <span class="span8" style="text-align:center;"><input type="text" value="1" id="current-page-textfield" style="width:3em;">&nbsp;/&nbsp;<input type="text" value="" id="page-count-textfield" style="width:3em;"></span>
+              <span class="span8" style="text-align:center;"><input type="text" value="1" id="current-page-textfield" style="width:3em;text-align: center">&nbsp;/&nbsp;<input type="text" value="" id="page-count-textfield" style="width:3em;text-align: center"></span>
               <button type="next" id="" class="next-button btn btn-info pull-right span2">Next <i class="icon-step-forward icon-white"></i></button>
             </div>
             <canvas id="pdf-canvas" class="pdf-document"></canvas>

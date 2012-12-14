@@ -22,11 +22,12 @@
           if(pdf) {
             currentPage = Math.min(currentPage+1, pdf.numPages);
             if(currentPage > 1) {
-              $('#prev-button').removeClass('disabled');
+              $('.prev-button').removeClass('disabled');
             }                
             if (currentPage == pdf.numPages){
-                $('#next-button').addClass('disabled');
+                $('.next-button').addClass('disabled');
             }
+            $('#current-page-textfield').val(currentPage);
             repaintPdf();
           }
         }
@@ -35,14 +36,14 @@
           if(pdf) {
             currentPage = Math.max(currentPage-1, 1);
             if (currentPage == 1){
-                $('#prev-button').addClass('disabled');
+                $('.prev-button').addClass('disabled');
             }
             if (currentPage != pdf.numPages){
-                $('#next-button').removeClass('disabled');
+                $('.next-button').removeClass('disabled');
             }
-            repaintPdf();     
+            $('#current-page-textfield').val(currentPage);
+            repaintPdf();
           }
-
         }
 
         function repaintPdf() {
@@ -120,13 +121,33 @@
           // Init the communication with the server:
           communication.init(sessionid, idpresentation, username);
           if(currentPage == 1) {
-              $('#prev-button').addClass('disabled');
+              $('.prev-button').addClass('disabled');
           }
 
-          $('#next-button').click(nextSlide);
-          $('#prev-button').click(prevSlide);
+          $('.next-button').click(nextSlide);
+          $('.prev-button').click(prevSlide);
 
           $(window).resize(repaintPdf);
+          
+          $('#current-page-textfield').change(function() {
+            if(!isNaN($('#current-page-textfield').val())) {
+              if(pdf) {
+                currentPage = Math.max(parseInt($('#current-page-textfield').val()), 1);
+                currentPage = Math.min(currentPage, pdf.numPages);
+                if (currentPage == 1){
+                    $('.prev-button').addClass('disabled');
+                }
+                if (currentPage != pdf.numPages){
+                    $('.next-button').removeClass('disabled');
+                }
+                $('#current-page-textfield').val(currentPage);
+                repaintPdf();
+              }
+            }
+            else {
+              $('#current-page-textfield').val(currentPage);
+            }
+          });
         
           $(document).bind('keydown', function(evt) {
             if(evt.keyCode == 37) {
@@ -143,6 +164,7 @@
           PDFJS.getDocument('/pdf/{{presentation.filename}}.pdf').then(function(doc) {
             pdf = doc;
             repaintPdf();
+            $('#page-count-textfield').val(pdf.numPages);
           });
         });
       </script>
@@ -153,10 +175,15 @@
 
         <div class="row-fluid">
           <div class="span9">
+            <div class="slideNav row-fluid">
+              <button type="prev" id="" class="prev-button btn btn-info disabled span2"><i class="icon-step-backward icon-white"></i> Prev</button>
+              <span class="span8" style="text-align:center;"><input type="text" value="1" id="current-page-textfield" style="width:3em;">&nbsp;/&nbsp;<input type="text" value="" id="page-count-textfield" style="width:3em;"></span>
+              <button type="next" id="" class="next-button btn btn-info pull-right span2">Next <i class="icon-step-forward icon-white"></i></button>
+            </div>
             <canvas id="pdf-canvas" class="pdf-document"></canvas>
-            <div class="slideNav">
-            <button type="prev" id="prev-button" class="btn btn-info disabled"><i class="icon-step-backward icon-white"></i> Prev</button>
-            <button type="next" id="next-button" class="btn btn-info pull-right">Next <i class="icon-step-forward icon-white"></i></button>
+            <div class="slideNav row-fluid">
+              <button type="prev" id="prev-button" class="prev-button btn btn-info disabled span2"><i class="icon-step-backward icon-white"></i> Prev</button>
+              <button type="next" id="next-button" class="next-button btn btn-info pull-right span2">Next <i class="icon-step-forward icon-white"></i></button>
             </div>
           </div>
           <div class="span3">

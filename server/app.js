@@ -358,9 +358,10 @@ io.sockets.on('connection', function (socket) {
           socket.get("idpresentation", this.parallel());
         },
         function (error, idpresentation) {
-          if(error) {
+          if(error || !session.user) {
             console.log(error);
-            socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
+            console.log(session);
+            socket.emit("error",{"msg":"Could not read socket/session data","code":"INTERNAL","original":data_in});
           }
           else {
             db.query("INSERT INTO note(idpresentation,iduser,content,slide_no,slide_x,slide_y,type) VALUES(?,?,?,?,?,?,'std')",[idpresentation,session.user.iduser,data_in.text,data_in.slide.page,data_in.slide.x,data_in.slide.y], function(error, results) {
@@ -379,7 +380,6 @@ io.sockets.on('connection', function (socket) {
         }
       );
     });
-    
   });
   
   socket.on('comment', function (data_in) {
@@ -389,8 +389,9 @@ io.sockets.on('connection', function (socket) {
           socket.get("idpresentation", this.parallel());
         },
         function (error, idpresentation) {
-          if(error) {
+          if(error  || !session.user) {
             console.log(error);
+            console.log(session);
             socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
           }
           else {
@@ -417,8 +418,9 @@ io.sockets.on('connection', function (socket) {
           socket.get("idpresentation", this.parallel());
         },
         function (error, idpresentation) {
-          if(error) {
+          if(error || !session.user) {
             console.log(error);
+            console.log(session);
             socket.emit("error",{"msg":"Could not read socket data","code":"INTERNAL","original":data_in});
           }
           else {

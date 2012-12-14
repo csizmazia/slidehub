@@ -67,7 +67,7 @@ var communication = {
    */
   addComment: function(idnote, text, username, email) {
     var gravatar = '"http://www.gravatar.com/avatar/'+$.md5(email)+'?s=24&d=identicon"';
-    $("#comments" + idnote).append('<div class="comment"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><h5 class="media-heading">'+username+'</h5>' +  text + '</div>');
+    $("#comments" + idnote).append('<div class="comment"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><div class="media-body"><h5 class="media-heading">'+username+'</h5>' +  text + '</div></div>');
   },
 
   /**

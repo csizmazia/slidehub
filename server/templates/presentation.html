@@ -153,11 +153,13 @@
           });
         
           $(document).bind('keydown', function(evt) {
-            if(evt.keyCode == 37) {
-              prevSlide();
-            }
-            else if(evt.keyCode == 39) {
-              nextSlide();
+            if(document.activeElement == document.getElementsByTagName('body')[0]) {
+              if(evt.keyCode == 37) {
+                prevSlide();
+              }
+              else if(evt.keyCode == 39) {
+                nextSlide();
+              }
             }
           });
         

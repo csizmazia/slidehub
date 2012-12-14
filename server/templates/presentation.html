@@ -67,9 +67,12 @@
                     var gravatar = '"http://www.gravatar.com/avatar/'+$.md5(comment.email)+'?s=24&d=identicon"';
                     comments += '<div class="comment"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><h5 class="media-heading">' + comment.username + '</h5>' + comment.content + '</div>';
                   });
-
+                  var button = '';
+                  if (username != null)  {
+                    button = '<a href="javascript:void(0)" onclick="communication.addCommentInputBox(this, ' +  note.idnote + ');">add a comment</a>';
+                  }
                   var gravatar = '"http://www.gravatar.com/avatar/'+$.md5(note.email)+'?s=32&d=identicon"';
-                  $("#notes-container").append('<div class="note" id="note' + note.idnote + '"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime.format("MMM Do YYYY, HH:mm:ss") + ')'+'</h5>'+note.content+'<div class="comments-container" id="comments' + note.idnote +'"><a href="javascript:void(0)" onclick="communication.addCommentInputBox(this, ' +  note.idnote +');">add a comment</a>' + comments + '</div></div></div>');
+                  $("#notes-container").append('<div class="note" id="note' + note.idnote + '"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><div class="media-body"><h5 class="media-heading">'+note.username+' (' + dateTime.format("MMM Do YYYY, HH:mm:ss") + ')'+'</h5>'+note.content+'<div class="comments-container" id="comments' + note.idnote +'">' + button + comments + '</div></div></div>');
                 });
             });
 
@@ -188,7 +191,10 @@
           </div>
           <div class="span3">
 
-              <h4>New note:</h4> <textarea rows=3 id="new-note" style="width: 100%"></textarea>
+              <h4>New note:</h4> 
+              {{^username}}
+                <textarea rows=3 id="new-note" style="width: 100%"></textarea>
+              {{/username}}
             <h3>Notes:</h3>
             <div id="notes-container">
             </div>

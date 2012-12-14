@@ -20,20 +20,24 @@
 
         function nextSlide() {
           if(pdf) {
+            var currentPageBefore = currentPage;
             currentPage = Math.min(currentPage+1, pdf.numPages);
             if(currentPage > 1) {
               $('.prev-button').removeClass('disabled');
             }                
             if (currentPage == pdf.numPages){
-                $('.next-button').addClass('disabled');
+              $('.next-button').addClass('disabled');
             }
-            $('#current-page-textfield').val(currentPage);
-            repaintPdf();
+            if(currentPage != currentPageBefore) {
+              $('#current-page-textfield').val(currentPage);
+              repaintPdf();
+            }
           }
         }
 
         function prevSlide() {
           if(pdf) {
+            var currentPageBefore = currentPage;
             currentPage = Math.max(currentPage-1, 1);
             if (currentPage == 1){
                 $('.prev-button').addClass('disabled');
@@ -41,8 +45,10 @@
             if (currentPage != pdf.numPages){
                 $('.next-button').removeClass('disabled');
             }
-            $('#current-page-textfield').val(currentPage);
-            repaintPdf();
+            if(currentPage != currentPageBefore) {
+              $('#current-page-textfield').val(currentPage);
+              repaintPdf();
+            }
           }
         }
 
@@ -135,16 +141,21 @@
           $('#current-page-textfield').change(function() {
             if(!isNaN($('#current-page-textfield').val())) {
               if(pdf) {
+                var currentPageBefore = currentPage;
                 currentPage = Math.max(parseInt($('#current-page-textfield').val()), 1);
                 currentPage = Math.min(currentPage, pdf.numPages);
                 if (currentPage == 1){
                     $('.prev-button').addClass('disabled');
-                }
-                if (currentPage != pdf.numPages){
                     $('.next-button').removeClass('disabled');
                 }
-                $('#current-page-textfield').val(currentPage);
-                repaintPdf();
+                if (currentPage == pdf.numPages){
+                    $('.next-button').addClass('disabled');
+                    $('.prev-button').removeClass('disabled');
+                }
+                if(currentPage != currentPageBefore) {
+                  $('#current-page-textfield').val(currentPage);
+                  repaintPdf();
+                }
               }
             }
             else {

@@ -68,7 +68,7 @@
                     comments += '<div class="comment"><a class="pull-left" ><img class="media-object" src='+gravatar+'></a><h5 class="media-heading">' + comment.username + '</h5>' + comment.content + '</div>';
                   });
                   var button = '';
-                  if (username != null)  {
+                  if (username != '')  {
                     button = '<a href="javascript:void(0)" onclick="communication.addCommentInputBox(this, ' +  note.idnote + ');">add a comment</a>';
                   }
                   var gravatar = '"http://www.gravatar.com/avatar/'+$.md5(note.email)+'?s=32&d=identicon"';
@@ -190,10 +190,10 @@
             </div>
           </div>
           <div class="span3">
-
-              <h4>New note:</h4> 
               {{#username}}
+                <h4>New note:</h4> 
                 <textarea rows=3 id="new-note" style="width: 100%"></textarea>
+                <input type="submit" class="btn" id="note-submit-button" value="Add Note" />
               {{/username}}
             <h3>Notes:</h3>
             <div id="notes-container">

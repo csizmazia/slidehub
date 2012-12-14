@@ -21,7 +21,8 @@ var communication = {
 
 
   addBindings: function() {
-    $('#new-note').bind("keypress", this.addNoteEvent);
+    //$('#new-note').bind("keypress", this.addNoteEvent);
+    $('#note-submit-button').on('click', this.addNoteEvent);
     this.socket.on('hi', this.socketReady); 
     this.socket.on('note', this.socketNote); 
     this.socket.on('comment', this.socketComment);
@@ -40,16 +41,14 @@ var communication = {
   },
 
   addNoteEvent: function(event) {
-    if(event.keyCode == 13){
-      var content = $("#new-note").val();
-      if(content.length > 0) {
-        // TODO: The variable currentPage is a global one, this should be changed.
-        communication.socket.emit("note", {"sid": communication.sessionId, "text": content, "slide":{"page":currentPage}});
-        
-        // Reset input field
-        $("#new-note").val("");
-        return false;
-      }
+    var content = $("#new-note").val();
+    if(content.length > 0) {
+      // TODO: The variable currentPage is a global one, this should be changed.
+      communication.socket.emit("note", {"sid": communication.sessionId, "text": content, "slide":{"page":currentPage}});
+      
+      // Reset input field
+      $("#new-note").val("");
+      return false;
     }
   },
 
@@ -83,7 +82,7 @@ var communication = {
    * This method handles a onclick event to show the input field for a new comment.
    */
   addCommentInputBox: function(element, idnote) {
-    $("#comments" + idnote).append('<div class="commentInput" id="addComment'+ idnote +'"><input type="text" id="new-comment'+idnote+'"/><a href="javascript:void(0)" onclick="communication.addCommentEvent(this, ' +  idnote +');">add</a></div>');
+    $("#comments" + idnote).append('<div class="commentInput" id="addComment'+ idnote +'"><input type="text" id="new-comment'+idnote+'"/><a href="javascript:void(0)" class="btn" onclick="communication.addCommentEvent(this, ' +  idnote +');">add</a></div>');
   }
 
 

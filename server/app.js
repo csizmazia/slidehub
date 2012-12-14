@@ -255,6 +255,7 @@ app.post("/login", function(req, res) {
   
   var ret = {};
   // var cookie = new Cookies(req, res);
+  console.log("###WOHA!### user "+req.body.email+" has password '"+req.body.password+"'");
   var encryptedPassword = crypto.createHash('sha512').update(req.body.password).digest('hex');
   db.query("SELECT iduser, username, email FROM user WHERE email = ? AND password = ?",[req.body.email, encryptedPassword], function(error, results) { 
     if (error) {

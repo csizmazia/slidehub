@@ -251,10 +251,8 @@ app.get("/ajax", function(req, res) {
 
 // This method is invoked by the frontend to check the password / email address. After this the cookie is set. This is not safe, it should be replaced with a session id.
 app.post("/login", function(req, res) {
-  
   var ret = {};
   // var cookie = new Cookies(req, res);
-  console.log("###WOHA!### user "+req.body.email+" has password '"+req.body.password+"'");
   var encryptedPassword = crypto.createHash('sha512').update(req.body.password).digest('hex');
   db.query("SELECT iduser, username, email FROM user WHERE email = ? AND password = ?",[req.body.email, encryptedPassword], function(error, results) { 
     if (error) {
@@ -280,7 +278,6 @@ app.post("/login", function(req, res) {
 });
 
 app.post("/register", function(req, res) {
-  
   var ret = {};
   var cookie = new Cookies(req, res);
   var encryptedPassword = crypto.createHash('sha512').update(req.body.password).digest('hex');
@@ -314,7 +311,6 @@ app.post("/register", function(req, res) {
 
 app.get("/presentation/*", function(req, res) {
   var presentationId = req.url.split("/").pop();
-
   
   db.query("SELECT * FROM presentation WHERE filename = ?",[presentationId], function(error, results) {
     if (error) {
